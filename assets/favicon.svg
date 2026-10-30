@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <radialGradient id="bubbleGrad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="40%" stop-color="#a5f3fc" stop-opacity="0.6"/>
+      <stop offset="75%" stop-color="#fbcfe8" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#818cf8" stop-opacity="0.9"/>
+    </radialGradient>
+  </defs>
+  <!-- Main Bubble Body -->
+  <circle cx="32" cy="32" r="28" fill="url(#bubbleGrad)" stroke="#c084fc" stroke-width="1.5"/>
+  <!-- Eyes -->
+  <circle cx="24" cy="30" r="3" fill="#1e293b"/>
+  <circle cx="40" cy="30" r="3" fill="#1e293b"/>
+  <circle cx="23" cy="29" r="1" fill="#ffffff"/>
+  <circle cx="39" cy="29" r="1" fill="#ffffff"/>
+  <!-- Smile -->
+  <path d="M 28 37 Q 32 41 36 37" fill="transparent" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/>
+  <!-- Highlight -->
+  <ellipse cx="22" cy="18" rx="8" ry="3.5" transform="rotate(-30 22 18)" fill="#ffffff" opacity="0.8"/>
+</svg>
+

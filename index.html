@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <title>A Bubble That Doesn't Want to Be Popped</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Canvas container for 60+ FPS physics and rendering -->
+  <canvas id="bubbleCanvas"></canvas>
+
+  <!-- Clean Floating Header UI -->
+  <header class="app-header">
+    <div class="logo-group">
+      <div class="bubble-icon-badge">🫧</div>
+      <div class="title-wrap">
+        <h1 class="app-title">A Bubble That Doesn’t Want to Be Popped</h1>
+        <p class="app-subtitle">Interactive Soft-Body Deformable Bubble Simulation</p>
+      </div>
+    </div>
+
+    <!-- Status & Stress Indicator -->
+    <div class="stress-container" id="stressContainer">
+      <div class="stress-label-row">
+        <span class="stress-status-text" id="bubbleMood">Mood: Happy & Safe</span>
+        <span class="stress-percent" id="stressPercent">0%</span>
+      </div>
+      <div class="stress-bar-track">
+        <div class="stress-bar-fill" id="stressBarFill"></div>
+      </div>
+    </div>
+
+    <!-- Top Action Buttons -->
+    <div class="header-actions">
+      <button id="soundToggleBtn" class="glass-btn icon-btn" title="Toggle Sound (M)" aria-label="Toggle Sound">
+        <span id="soundIcon">🔊</span>
+      </button>
+      <button id="helpBtn" class="glass-btn icon-btn" title="How to Play / Help (?)" aria-label="Help">
+        <span>❓</span>
+      </button>
+      <button id="settingsBtn" class="glass-btn icon-btn" title="Options & Themes" aria-label="Settings">
+        <span>⚙️</span>
+      </button>
+      <button id="resetBtn" class="glass-btn action-pill" title="Spawn New Bubble (R)">
+        <span>🔄 Respawn</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Interactive Action Hints / Quick Toast -->
+  <div class="interaction-hint" id="interactionHint">
+    <span class="hint-icon">👆</span>
+    <span class="hint-text" id="hintText">Click & drag to move • Pull edge to stretch • Poke to squish!</span>
+  </div>
+
+  <!-- In-game pop counter & stats pill -->
+  <div class="stats-dock" id="statsDock">
+    <div class="stat-item">
+      <span class="stat-num" id="pokeCount">0</span>
+      <span class="stat-label">Pokes</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num" id="stretchMax">1.0x</span>
+      <span class="stat-label">Max Stretch</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num" id="miniBubblesCount">0</span>
+      <span class="stat-label">Baby Bubbles</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num" id="surviveTimer">0s</span>
+      <span class="stat-label">Survived</span>
+    </div>
+  </div>
+
+  <!-- Settings Panel Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Bubble Settings & Play Modes</h2>
+        <button class="modal-close-btn" id="closeSettingsBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Game Modes -->
+        <div class="setting-group">
+          <label class="setting-label">Game Mode</label>
+          <div class="mode-selector">
+            <button class="mode-btn active" data-mode="classic">
+              <span class="mode-title">Classic Play</span>
+              <span class="mode-desc">Balanced pop resistance with realistic jelly physics.</span>
+            </button>
+            <button class="mode-btn" data-mode="dodge">
+              <span class="mode-title">Dodge & Escape!</span>
+              <span class="mode-desc">The bubble actively runs away from your pointer!</span>
+            </button>
+            <button class="mode-btn" data-mode="zen">
+              <span class="mode-title">Zen Mode</span>
+              <span class="mode-desc">Indestructible bubble. Stretch and pull as much as you want!</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Color Themes -->
+        <div class="setting-group">
+          <label class="setting-label">Bubble Theme</label>
+          <div class="theme-chips">
+            <button class="theme-chip active" data-theme="iridescent">
+              <span class="theme-color-preview iridescent-preview"></span>
+              Soap Rainbow
+            </button>
+            <button class="theme-chip" data-theme="neon">
+              <span class="theme-color-preview neon-preview"></span>
+              Neon Cyber
+            </button>
+            <button class="theme-chip" data-theme="sunset">
+              <span class="theme-color-preview sunset-preview"></span>
+              Sunset Opal
+            </button>
+            <button class="theme-chip" data-theme="cosmic">
+              <span class="theme-color-preview cosmic-preview"></span>
+              Cosmic Astral
+            </button>
+            <button class="theme-chip" data-theme="emerald">
+              <span class="theme-color-preview emerald-preview"></span>
+              Emerald Dew
+            </button>
+          </div>
+        </div>
+
+        <!-- Bubble Personality Toggle -->
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">Cute Facial Expressions</div>
+            <div class="setting-sub">Eyes and mouth react dynamically to pulls, pokes, and danger.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleFace" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Sound FX Toggle -->
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">Procedural Sound Effects</div>
+            <div class="setting-sub">Dynamic squishes, boings, pops, and tension hums via Web Audio.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleSound" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Floating Atmosphere Toggle -->
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">Ambient Soap Particles</div>
+            <div class="setting-sub">Floating light motes and iridescent sparkles in background.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleParticles" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help & Tutorial Modal -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>How to Play With Your Bubble</h2>
+        <button class="modal-close-btn" id="closeHelpBtn">&times;</button>
+      </div>
+      <div class="modal-body tutorial-grid">
+        <div class="tutorial-card">
+          <div class="t-icon">🖐️</div>
+          <div class="t-title">Drag & Carry</div>
+          <div class="t-desc">Click or touch inside the bubble body to move it smoothly around the screen with realistic fluid inertia.</div>
+        </div>
+
+        <div class="tutorial-card">
+          <div class="t-icon">↔️</div>
+          <div class="t-title">Stretch & Pull</div>
+          <div class="t-desc">Grab near the edge of the bubble and drag outward to deform it into elastic, teardrop or oblong shapes!</div>
+        </div>
+
+        <div class="tutorial-card">
+          <div class="t-icon">🧱</div>
+          <div class="t-title">Squash on Edges</div>
+          <div class="t-desc">Flung or drag the bubble against screen borders to see it flatten and bulge against the walls like real liquid!</div>
+        </div>
+
+        <div class="tutorial-card">
+          <div class="t-icon">👉</div>
+          <div class="t-title">Poke & Wobble</div>
+          <div class="t-desc">Click rapidly to poke inward indents and trigger harmonic jelly wobble waves across the membrane.</div>
+        </div>
+
+        <div class="tutorial-card">
+          <div class="t-icon">✨</div>
+          <div class="t-title">Baby Bubbles</div>
+          <div class="t-desc">Poke the bubble repeatedly in quick succession to spawn floating miniature baby bubbles you can pop!</div>
+        </div>
+
+        <div class="tutorial-card">
+          <div class="t-icon">💥</div>
+          <div class="t-title">The Big Pop!</div>
+          <div class="t-desc">Exceed the strain threshold or poke too many times, and the bubble will burst into shimmering droplets and respawn!</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="primary-btn" id="gotItBtn">Got It! Let's Play 🫧</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio unlock banner for autoplay policy -->
+  <div class="audio-prompt-banner" id="audioBanner">
+    <span>🎵 Click anywhere to enable interactive sounds!</span>
+    <button class="btn-small" id="dismissAudioPrompt">Enable</button>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/bubble.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
+
